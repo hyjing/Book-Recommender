@@ -1,0 +1,32 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Books list</h1>
+  <div>{{data}}</div>
+
+  <div>
+    {% for n in data %}
+    <div>{{n}}</div>
+    {% endfor %}
+  </div>
+
+<p><a href="book">Go to the other page</a></p>
+
+<form method="POST" action="/comment">
+  <p>Comment your favorite book: 
+    <input type="text" name="name"> 
+    <input type="submit" value="Comment">
+  </p>
+</form>
+
+</body>
+
+
+</html>

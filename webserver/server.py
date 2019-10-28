@@ -12,7 +12,8 @@ import os
   # accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, session, flash, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -108,10 +109,10 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT last_name FROM author")
+  cursor = g.conn.execute("SELECT * FROM author")
   names = []
   for result in cursor:
-    names.append(result['name'])  # can also be accessed using result[0]
+    names.append(result['last_name'])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -157,15 +158,33 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
-@app.route('/books')
-def books():
-  # <div>{{data}}</div>
-  data = g.conn.execute("SELECT * FROM books")
-  {% for n in data %}
-  <div>{{n}}</div>
-  {% endfor %}
-  return render_template("another.html")
+@app.route('/book')
+def book():
+  books = g.conn.execute("SELECT * FROM book")
+  return render_template("book.html", **dict(data = books))
 
+@app.route('/likebook', methods=['POST'])
+def likebook():
+  isbn = request.form['isbn']
+  uid = request.form['uid']
+  g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d)', isbn, uid)
+  return redirect("/books")
+
+@app.route('/liketype', methods=['POST'])
+def liketype():
+  tid = request.form['tid']
+  uid = request.form['uid']
+  g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d)', tid, uid)
+  return redirect("/books")
+
+@app.route('/comment')
+def comment():
+  uid = request.form['uid']
+  isbn = request.form['isbn']
+  time = request.form['time']
+  content = request.form['content']
+  g.conn.execute('INSERT INTO comment(uid, isbn, time, content) VALUES (%d, %s, ?, %s)', uid, isbn, time, content)
+  return render_template("another.html")
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -175,11 +194,68 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
+@app.route('/login', methods=('GET', 'POST'))
 def login():
-    abort(401)
-    this_is_never_executed()
+  if request.method == 'POST':
+    uid = request.form['uid']
+    password = request.form['password']
+    error = None
+    user = g.conn.execute(
+        'SELECT * FROM user WHERE uid = ?', (uid,)
+    ).fetchone()
 
+    if user is None:
+        error = 'Incorrect uid.'
+    elif not check_password_hash(user['password'], password):
+        error = 'Incorrect password.'
+
+    if error is None:
+        session.clear()
+        session['user_id'] = user['uid']
+        return redirect(url_for('index'))
+
+    flash(error)
+
+  return render_template('auth/login.html')
+  # abort(401)
+  # this_is_never_executed()
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=('GET', 'POST'))
+def register():
+  if request.method == 'POST':
+    uid = request.form['uid']
+    password = request.form['password']
+    last_name = request.form['last_name']
+    first_name = request.form['first_name']
+    gender = request.form['gender']
+    db = g.conn
+    error = None
+
+    if not uid:
+      error = 'uid is required.'
+    elif not password:
+      error = 'Password is required.'
+    elif db.execute(
+      'SELECT id FROM user WHERE uid = ?', (uid,)
+    ).fetchone() is not None:
+      error = 'User {} is already registered.'.format(uid)
+
+    if error is None:
+      db.execute(
+        'INSERT INTO user (uid, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?)',
+        (uid, generate_password_hash(password), last_name, first_name, gender)
+      )
+      db.commit()
+      return redirect(url_for('auth.login'))
+
+    flash(error)
+
+  return render_template('auth/register.html')
 
 if __name__ == "__main__":
   import click
