@@ -105,16 +105,6 @@ def index():
   # DEBUG: this is debugging code to see what request looks like
   print(request.args)
 
-
-  #
-  # example of a database query
-  #
-  cursor = g.conn.execute("SELECT * FROM type")
-  names = []
-  for result in cursor:
-    names.append(result['last_name'])  # can also be accessed using result[0]
-  cursor.close()
-
   posts = g.conn.execute(
       "SELECT * FROM type T"
       " FROM liketype LT AND user U"
