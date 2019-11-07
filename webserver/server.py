@@ -109,46 +109,18 @@ def index():
   #
   # example of a database query
   #
-  cursor = g.conn.execute("SELECT * FROM author")
+  cursor = g.conn.execute("SELECT * FROM type")
   names = []
   for result in cursor:
     names.append(result['last_name'])  # can also be accessed using result[0]
   cursor.close()
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
-  context = dict(data = names)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
-  return render_template("index.html", **context)
+  posts = g.conn.execute(
+      "SELECT * FROM type T"
+      " FROM liketype LT AND user U"
+      " WHERE LT.uid = ? AND LT.tid = T.tid", (session['uid'],)
+  ).fetchall()
+  return render_template("blog/index.html", posts=posts)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -206,17 +178,18 @@ def login():
 
     if user is None:
         error = 'Incorrect uid.'
-    elif not check_password_hash(user['password'], password):
-        error = 'Incorrect password.'
+    elif not check_password_hash(user["password"], password):
+        error = "Incorrect password."
 
     if error is None:
         session.clear()
         session['user_id'] = user['uid']
+        # session['user_name'] = user['last_name'] + ' ' + user['first_name']
         return redirect(url_for('index'))
 
     flash(error)
 
-  return render_template('auth/login.html')
+  return render_template('login.html')
   # abort(401)
   # this_is_never_executed()
 
@@ -251,11 +224,11 @@ def register():
         (uid, generate_password_hash(password), last_name, first_name, gender)
       )
       db.commit()
-      return redirect(url_for('auth.login'))
+      return redirect(url_for('login'))
 
     flash(error)
 
-  return render_template('auth/register.html')
+  return render_template('register.html')
 
 if __name__ == "__main__":
   import click

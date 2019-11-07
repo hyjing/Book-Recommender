@@ -1,29 +1,25 @@
-<html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+{% extends 'base.html' %}
 
+{% block header %}
+  <h1>{% block title %}Posts{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('blog.create') }}">New</a>
+  {% endif %}
+{% endblock %}
 
-<body>
-  <h1>Some famous Computer Scientists</h1>
-  <div>{{data}}</div>
-
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
-
-<p><a href="another">Go to the other page</a></p>
-
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
-
-</body>
-
-
-</html>
+{% block content %}
+  <table>
+    <thead>
+      <th>type</th>
+      <th>description</th>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <td>{{ post['name'] }}</td>
+        <td>{{ post['description'] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
