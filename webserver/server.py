@@ -110,7 +110,7 @@ def index():
       " FROM liketype LT AND user U"
       " WHERE LT.uid = ? AND LT.tid = T.tid", (session['uid'],)
   ).fetchall()
-  return render_template("blog/index.html", posts=posts)
+  return render_template("login.html", posts=posts)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -146,7 +146,7 @@ def comment():
   time = request.form['time']
   content = request.form['content']
   g.conn.execute('INSERT INTO comment(uid, isbn, time, content) VALUES (%d, %s, ?, %s)', uid, isbn, time, content)
-  return render_template("another.html")
+  return render_template("comment.html")
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -175,7 +175,7 @@ def login():
         session.clear()
         session['user_id'] = user['uid']
         # session['user_name'] = user['last_name'] + ' ' + user['first_name']
-        return redirect(url_for('index'))
+        return redirect('/')
 
     flash(error)
 
