@@ -110,9 +110,8 @@ def index():
 @app.route('/types')
 def types():
   posts = g.conn.execute(
-      "SELECT * FROM type T"
-      " FROM liketype LT AND user U"
-      " WHERE LT.uid = ? AND LT.tid = T.tid", (session['uid'],)
+      "SELECT * FROM type T, liketype LT"
+      " WHERE LT.uid = {} AND LT.tid = T.tid;".format(session['user_id'])
   ).fetchall()
 
   return render_template("types.html", posts=posts)
@@ -134,14 +133,14 @@ def book():
 def likebook():
   isbn = request.form['isbn']
   uid = request.form['uid']
-  g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d)', isbn, uid)
+  g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d);', isbn, uid)
   return redirect("/book")
 
 @app.route('/liketype', methods=['POST'])
 def liketype():
   tid = request.form['tid']
   uid = request.form['uid']
-  g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d)', tid, uid)
+  g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d);', tid, uid)
   return redirect("/book")
 
 @app.route('/comment')
@@ -150,14 +149,14 @@ def comment():
   isbn = request.form['isbn']
   time = request.form['time']
   content = request.form['content']
-  g.conn.execute('INSERT INTO comment(uid, isbn, time, content) VALUES (%d, %s, ?, %s)', uid, isbn, time, content)
+  g.conn.execute('INSERT INTO comment(uid, isbn, time, content) VALUES (%d, %s, ?, %s);', uid, isbn, time, content)
   return render_template("comment.html")
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
   name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
+  g.conn.execute('INSERT INTO test(name) VALUES (%s);', name)
   return redirect('/')
 
 
@@ -168,12 +167,12 @@ def login():
     password = request.form['password']
     error = None
     user = g.conn.execute(
-        'SELECT * FROM user WHERE email = ?', (email,)
+        'SELECT * FROM yc3702.user WHERE email = \'{}\';'.format(email)
     ).fetchone()
 
     if user is None:
         error = 'Incorrect uid.'
-    elif not check_password_hash(user["password"], password):
+    elif user["password"] != password:
         error = "Incorrect password."
 
     if error is None:
@@ -209,13 +208,13 @@ def register():
     elif not password:
       error = 'Password is required.'
     elif db.execute(
-      'SELECT id FROM user WHERE email = ?', (email,)
+      'SELECT id FROM yc3702.user WHERE email = $1;', (email,)
     ).fetchone() is not None:
       error = 'User {} is already registered.'.format(email)
 
     if error is None:
       db.execute(
-        'INSERT INTO user (email, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?);',
         (email, generate_password_hash(password), last_name, first_name, gender)
       )
       db.commit()
@@ -245,6 +244,8 @@ if __name__ == "__main__":
         python server.py --help
 
     """
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
