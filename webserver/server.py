@@ -164,11 +164,11 @@ def add():
 @app.route('/login', methods=('GET', 'POST'))
 def login():
   if request.method == 'POST':
-    uid = request.form['uid']
+    email = request.form['username']
     password = request.form['password']
     error = None
     user = g.conn.execute(
-        'SELECT * FROM user WHERE uid = ?', (uid,)
+        'SELECT * FROM user WHERE email = ?', (email,)
     ).fetchone()
 
     if user is None:
@@ -180,7 +180,7 @@ def login():
         session.clear()
         session['user_id'] = user['uid']
         # session['user_name'] = user['last_name'] + ' ' + user['first_name']
-        return redirect('/')
+        return redirect('/types')
 
     flash(error)
 
@@ -196,27 +196,27 @@ def logout():
 @app.route('/register', methods=('GET', 'POST'))
 def register():
   if request.method == 'POST':
-    uid = request.form['uid']
+    email = request.form['username']
     password = request.form['password']
-    last_name = request.form['last_name']
-    first_name = request.form['first_name']
+    last_name = request.form['lastname']
+    first_name = request.form['firstname']
     gender = request.form['gender']
     db = g.conn
     error = None
 
-    if not uid:
-      error = 'uid is required.'
+    if not email:
+      error = 'email is required.'
     elif not password:
       error = 'Password is required.'
     elif db.execute(
-      'SELECT id FROM user WHERE uid = ?', (uid,)
+      'SELECT id FROM user WHERE email = ?', (email,)
     ).fetchone() is not None:
-      error = 'User {} is already registered.'.format(uid)
+      error = 'User {} is already registered.'.format(email)
 
     if error is None:
       db.execute(
-        'INSERT INTO user (uid, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?)',
-        (uid, generate_password_hash(password), last_name, first_name, gender)
+        'INSERT INTO user (email, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?)',
+        (email, generate_password_hash(password), last_name, first_name, gender)
       )
       db.commit()
       return redirect(url_for('login'))
