@@ -103,7 +103,7 @@ def index():
   """
 
   # DEBUG: this is debugging code to see what request looks like
-  if session['uid'] != None:
+  if session.get('uid'):
     return redirect("/types")
   return render_template("index.html")
 
