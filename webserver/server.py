@@ -103,14 +103,19 @@ def index():
   """
 
   # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
+  if session['uid'] != None:
+    return redirect("/types")
+  return render_template("index.html")
 
+@app.route('/types')
+def types():
   posts = g.conn.execute(
       "SELECT * FROM type T"
       " FROM liketype LT AND user U"
       " WHERE LT.uid = ? AND LT.tid = T.tid", (session['uid'],)
   ).fetchall()
-  return render_template("login.html", posts=posts)
+
+  return render_template("types.html", posts=posts)
 
 #
 # This is an example of a different path.  You can see it at:
@@ -122,22 +127,22 @@ def index():
 #
 @app.route('/book')
 def book():
-  books = g.conn.execute("SELECT * FROM book")
-  return render_template("book.html", **dict(data = books))
+  posts = g.conn.execute("SELECT * FROM book")
+  return render_template("book.html", post=posts)
 
 @app.route('/likebook', methods=['POST'])
 def likebook():
   isbn = request.form['isbn']
   uid = request.form['uid']
   g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d)', isbn, uid)
-  return redirect("/books")
+  return redirect("/book")
 
 @app.route('/liketype', methods=['POST'])
 def liketype():
   tid = request.form['tid']
   uid = request.form['uid']
   g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d)', tid, uid)
-  return redirect("/books")
+  return redirect("/book")
 
 @app.route('/comment')
 def comment():
