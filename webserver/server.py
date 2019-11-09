@@ -14,8 +14,10 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session, flash, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from datetime import datetime
 from BookContent import BookDetail
+from RatingComment import UpdateRatingComment
+
 import json
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -234,13 +236,9 @@ def getBookContent():
     bd = BookDetail(g.conn, session)
     infos = bd.queryBookInformation()
     book_info = infos['book_info']
-    author_info = infos['author_info']
-    book_info['author'] = author_info['First Name'] + ' ' + author_info['Last Name']
-    session['author_info'] = author_info
-    #TODO: get rating and comment
-    return render_template('bookContent.html', Bookinfo=book_info)
-
-  # render_template()
+    my_comment = infos['my comment']
+    other_comment = infos['other comment']
+    return render_template('bookContent.html', Bookinfo=book_info, my_comment=my_comment, other_comment=other_comment)
 
 
 @app.route('/author', methods=['GET'])
@@ -248,10 +246,30 @@ def getAuthor():
     return render_template('author.html', Authorinfo=session['author_info'])
 
 
-@app.route('/comment', methods=['POST', 'DELETE'])
+@app.route('/comment', methods=['POST', "GET"])
 def comment():
-    # TODO: post/ delete comments
-    pass
+    if request.method == "POST":
+        content = request.form["comment"]
+        addComment = UpdateRatingComment(engine, g.conn)
+        addComment.addComment(content, session['isbn'], session['uid'])
+    elif request.method == "GET":
+        uid = request.args.get("uid")
+        time = request.args.get("time")
+        isbn = request.args.get("isbn")
+        deleteComment = UpdateRatingComment(engine, g.conn)
+        deleteComment.deleteComment(uid, time, isbn)
+    return redirect('/bookContent')
+
+
+@app.route('/rating', methods=['POST'])
+def rating():
+    if request.method == "POST":
+        rate = request.form["rating"]
+        addRate = UpdateRatingComment(engine, g.conn)
+        addRate.addRate(rate, session['isbn'], session['uid'])
+    return redirect('/bookContent')
+
+
 
 if __name__ == "__main__":
   import click

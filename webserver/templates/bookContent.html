@@ -17,10 +17,41 @@
   </dl>
   <p><a href="author">Know more about this author</a></p>
 
+  <form method="POST" action="/comment">
+  <p>Comment on this book: 
+    <input type="text" size="40" name="comment"> 
+    <input type="submit" value="Comment">
+  </p>
+</form>
+
+  <form method="POST" action="/rating">
+  <p>Rate for this book(0-5 score): 
+    <input type="text" size="10" name="rating"> 
+    <input type="submit" value="Rate">
+  </p>
+</form>
+
   <h2> Comments</h2>
   <h3> Your Comments</h3>
-  
+    <dl>
+    {% for val in my_comment %}
+        <dt>{{ val['first_name']|e }}</dt>
+        <dd>{{ val['content']|e }}</dd>
+        <form method="GET" action="/comment">
+          <input type="hidden" name="uid" value={{val['uid']}} /> 
+          <input type="hidden" name="time" value={{val['time']}} /> 
+          <input type="hidden" name="isbn" value={{val['isbn']}} /> 
+          <input type="submit" value="Delete">
+        </form>
+    {% endfor %}
+    </dl>
   <h3> Other users' Comments</h3>
+    <dl>
+    {% for val in other_comment %}
+        <dt>{{ val[0]|e }}</dt>
+        <dd>{{ val[2]|e }}</dd>
+    {% endfor %}
+    </dl>
 
 </body>
 
