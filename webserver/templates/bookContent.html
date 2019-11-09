@@ -1,0 +1,28 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Bookinfo</h1>
+  <dl>
+  {% for key, value in Bookinfo.items() %}
+      <dt>{{ key|e }}</dt>
+      <dd>{{ value|e }}</dd>
+  {% endfor %}
+  </dl>
+  <p><a href="author">Know more about this author</a></p>
+
+  <h2> Comments</h2>
+  <h3> Your Comments</h3>
+  
+  <h3> Other users' Comments</h3>
+
+</body>
+
+
+</html>

@@ -15,6 +15,8 @@ from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, session, flash, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from BookContent import BookDetail
+import json
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
@@ -143,14 +145,6 @@ def liketype():
   g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d);', tid, uid)
   return redirect("/book")
 
-@app.route('/comment')
-def comment():
-  uid = request.form['uid']
-  isbn = request.form['isbn']
-  time = request.form['time']
-  content = request.form['content']
-  g.conn.execute('INSERT INTO comment(uid, isbn, time, content) VALUES (%d, %s, ?, %s);', uid, isbn, time, content)
-  return render_template("comment.html")
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -158,6 +152,7 @@ def add():
   name = request.form['name']
   g.conn.execute('INSERT INTO test(name) VALUES (%s);', name)
   return redirect('/')
+
 
 
 @app.route('/login', methods=('GET', 'POST'))
@@ -224,6 +219,40 @@ def register():
 
   return render_template('register.html')
 
+
+"""
+*************************************************************************************************************************
+*************************************************************************************************************************
+"""
+
+# TODO: rating/ comment form in BookContent.html -> POST of rating/ comment
+
+@app.route('/bookContent', methods=['GET'])
+def getBookContent():
+    session['isbn'] = '978-0345457684'
+    session['uid'] = 7
+    bd = BookDetail(g.conn, session)
+    infos = bd.queryBookInformation()
+    book_info = infos['book_info']
+    author_info = infos['author_info']
+    book_info['author'] = author_info['First Name'] + ' ' + author_info['Last Name']
+    session['author_info'] = author_info
+    #TODO: get rating and comment
+    return render_template('bookContent.html', Bookinfo=book_info)
+
+  # render_template()
+
+
+@app.route('/author', methods=['GET'])
+def getAuthor():
+    return render_template('author.html', Authorinfo=session['author_info'])
+
+
+@app.route('/comment', methods=['POST', 'DELETE'])
+def comment():
+    # TODO: post/ delete comments
+    pass
+
 if __name__ == "__main__":
   import click
 
@@ -249,6 +278,7 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
-
+    app.debug = True
+    #app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
+    app.run()
   run()
