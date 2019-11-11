@@ -17,14 +17,19 @@
     {% endfor %}
   </div>
 
-<p><a href="book">Go to the other page</a></p>
+  <form method="post">
+    <p>Look for the book:</p>
+    <label for="isbn">Book ISBN</label>
+    <input name="isbn" id="isbn" required>
+    <input type="submit" value="List Book">
+  </form>
 
-<form method="POST" action="/comment">
-  <p>Comment your favorite book: 
-    <input type="text" name="name"> 
-    <input type="submit" value="Comment">
-  </p>
-</form>
+  <form method="POST" action="/comment">
+    <p>Comment your favorite book: 
+      <input type="text" name="name"> 
+      <input type="submit" value="Comment">
+    </p>
+  </form>
 
 </body>
 

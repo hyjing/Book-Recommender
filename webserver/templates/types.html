@@ -22,4 +22,11 @@
       {% endfor %}
     </tbody>
   </table>
+
+  <form method="get">
+    <p>Check specific type:</p>
+    <label for="type">Type</label>
+    <input name="type" id="type" required>
+    <input type="submit" value="List Books">
+  </form>
 {% endblock %}

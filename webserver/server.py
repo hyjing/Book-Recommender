@@ -106,7 +106,6 @@ def index():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  # DEBUG: this is debugging code to see what request looks like
   if session.get('uid'):
     return redirect("/types")
   return render_template("index.html")
@@ -117,6 +116,11 @@ def types():
       "SELECT * FROM type T, liketype LT"
       " WHERE LT.uid = {} AND LT.tid = T.tid;".format(session['user_id'])
   ).fetchall()
+
+  if request.method == 'GET':
+    bookType = request.form['type']
+    session['currentType'] = bookType
+    return redirect("/book")
 
   return render_template("types.html", posts=posts)
 
@@ -130,7 +134,11 @@ def types():
 #
 @app.route('/book')
 def book():
-  posts = g.conn.execute("SELECT * FROM book")
+  currentType = session['currentType']
+  posts = g.conn.execute(
+      "SELECT * FROM book B"
+      " WHERE B.type = {};".format(currentType)
+  ).fetchall()
   return render_template("book.html", post=posts)
 
 @app.route('/likebook', methods=['POST'])
@@ -211,7 +219,8 @@ def register():
 
     if error is None:
       db.execute(
-        'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES (?, ?, ?, ?, ?);',
+        'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES ({},{},{},{},{});'
+        .format(email, password, last_name, first_name, gender),
         (email, generate_password_hash(password), last_name, first_name, gender)
       )
       db.commit()
@@ -231,8 +240,8 @@ def register():
 
 @app.route('/bookContent', methods=['GET'])
 def getBookContent():
-    session['isbn'] = '978-0345457684'
-    session['uid'] = 7
+    session['isbn'] = request.form['isbn']
+    session['uid'] = session['user_id']
     bd = BookDetail(g.conn, session)
     infos = bd.queryBookInformation()
     book_info = infos['book_info']
