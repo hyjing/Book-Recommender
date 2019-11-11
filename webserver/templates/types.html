@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Posts{% endblock %}</h1>
+  <h1>{% block title %}Types{% endblock %}</h1>
   <!-- {% if g.user %}
     <a class="action" href="{{ url_for('blog.create') }}">New</a>
   {% endif %} -->
@@ -18,15 +18,13 @@
       <tr>
         <td>{{ post['name'] }}</td>
         <td>{{ post['description'] }}</td>
+
+        <form method="GET" action="/types">
+          <input type="hidden" name="type" value={{post['tid']}} />
+          <input type="submit" value="Get">
+        </form>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-
-  <form method="get">
-    <p>Check specific type:</p>
-    <label for="type">Type</label>
-    <input name="type" id="type" required>
-    <input type="submit" value="List Books">
-  </form>
 {% endblock %}

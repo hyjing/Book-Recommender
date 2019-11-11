@@ -1,37 +1,32 @@
-<html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+{% extends 'base.html' %}
 
+{% block header %}
+  <h1>{% block title %}Books{% endblock %}</h1>
+  <!-- {% if g.user %}
+    <a class="action" href="{{ url_for('blog.create') }}">New</a>
+  {% endif %} -->
+{% endblock %}
 
-<body>
-  <h1>Books list</h1>
-  <div>{{data}}</div>
+{% block content %}
+  <table>
+    <thead>
+      <th>title</th>
+      <th>date</th>
+      <th>outline</th>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <td>{{ post['title'] }}</td>
+        <td>{{ post['date'] }}</td>
+        <td>{{ post['outline'] }}</td>
 
-  <div>
-    {% for n in data %}
-    <div>{{n}}</div>
-    {% endfor %}
-  </div>
-
-  <form method="post">
-    <p>Look for the book:</p>
-    <label for="isbn">Book ISBN</label>
-    <input name="isbn" id="isbn" required>
-    <input type="submit" value="List Book">
-  </form>
-
-  <form method="POST" action="/comment">
-    <p>Comment your favorite book: 
-      <input type="text" name="name"> 
-      <input type="submit" value="Comment">
-    </p>
-  </form>
-
-</body>
-
-
-</html>
+        <form method="GET" action="/book">
+          <input type="hidden" name="isbn" value={{post['isbn']}} />
+          <input type="submit" value="Get">
+        </form>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

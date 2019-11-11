@@ -118,27 +118,23 @@ def types():
   ).fetchall()
 
   if request.method == 'GET':
-    bookType = request.form['type']
+    bookType = request.args.get("type")
     session['currentType'] = bookType
     return redirect("/book")
 
   return render_template("types.html", posts=posts)
 
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
 @app.route('/book')
 def book():
   currentType = session['currentType']
   posts = g.conn.execute(
-      "SELECT * FROM book B"
-      " WHERE B.type = {};".format(currentType)
+      "SELECT * FROM book B, booktype BT"
+      " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(currentType)
   ).fetchall()
+
+  if request.method == 'GET':
+    session['isbn'] = request.args.get("isbn")
+    return redirect("/bookContent")
   return render_template("book.html", post=posts)
 
 @app.route('/likebook', methods=['POST'])
@@ -154,16 +150,6 @@ def liketype():
   uid = request.form['uid']
   g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d);', tid, uid)
   return redirect("/book")
-
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  name = request.form['name']
-  g.conn.execute('INSERT INTO test(name) VALUES (%s);', name)
-  return redirect('/')
-
-
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
@@ -240,7 +226,6 @@ def register():
 
 @app.route('/bookContent', methods=['GET'])
 def getBookContent():
-    session['isbn'] = request.form['isbn']
     session['uid'] = session['user_id']
     bd = BookDetail(g.conn, session)
     infos = bd.queryBookInformation()
