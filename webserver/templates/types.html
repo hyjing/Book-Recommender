@@ -25,6 +25,12 @@
             <input type="submit" value="Get Books">
           </form>
 	</td>
+	<td>
+          <form method="POST" action="/types">
+            <input type="hidden" name="dislike_tid" value={{ post['tid'] }} />
+            <input type="submit" value="Dislike this type">
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -45,6 +51,12 @@
           <form method="POST" action="/types">
             <input type="hidden" name="type" value={{allType['tid']}} />
             <input type="submit" value="Get Books">
+          </form>
+        </td>
+	<td>
+          <form method="POST" action="/types">
+            <input type="hidden" name="like_tid" value={{ allType['tid'] }} />
+            <input type="submit" value="Like this type">
           </form>
         </td>
       </tr>

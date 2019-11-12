@@ -120,12 +120,22 @@ def types():
 
   allTypes = g.conn.execute(
       "SELECT * FROM type T"
+      " WHERE T.tid NOT IN (SELECT T2.tid FROM type T2, liketype LT WHERE LT.uid = {} AND LT.tid = T2.tid);".format(session['user_id'])
   ).fetchall()
 
   if request.method == 'POST':
-    session['tid'] = request.form["type"]
-    return redirect("/book")
-
+    if 'type' in request.form:
+      session['tid'] = request.form["type"]
+      return redirect("/book")
+    elif 'like_tid' in request.form:
+      g.conn.execute(
+        'INSERT INTO liketype(tid, uid) VALUES ({}, {});'.format(request.form["like_tid"], session['user_id'])
+      )
+      return redirect("/types")
+    elif 'dislike_tid' in request.form:
+        g.conn.execute(
+          'DELETE FROM liketype WHERE tid = {} AND uid = {};'.format(request.form["dislike_tid"], session['user_id']))
+        return redirect("/types")
   return render_template("types.html", posts=posts, allTypes=allTypes)
 
 @app.route('/book', methods=['GET', 'POST'])
@@ -144,13 +154,6 @@ def book():
     session['isbn'] = request.form["isbn"]
     return redirect("/bookContent")
   return render_template("book.html", posts=posts)
-
-@app.route('/likebook', methods=['POST'])
-def likebook():
-  isbn = request.form['isbn']
-  uid = request.form['uid']
-  g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d);', isbn, uid)
-  return redirect("/book")
 
 @app.route('/liketype', methods=['POST'])
 def liketype():
