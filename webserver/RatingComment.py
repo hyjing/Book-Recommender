@@ -34,7 +34,7 @@ class UpdateRatingComment():
             session.close()
 
 
-    def deleteComment(self, uid, time, isbn):
+    def deleteComment(self, uid, time_, isbn):
         """
         react to GET request of comment from user -> delete (html does not support DELETE in form)
         :param uid: uid of user
@@ -45,8 +45,8 @@ class UpdateRatingComment():
         Session = sessionmaker(bind=self.engine)
         session = Session()
         try:
-            datetime_object = time.strptime(time, '%Y-%m-%d-%H:%M:%S.%f') # convert string to datetime object
-            self.conn.execute('DELETE FROM Comment WHERE uid=%s AND time=%s AND isbn=%s;', (uid, time, isbn))
+            datetime_object = datetime.strptime(time_, '%Y-%m-%d-%H:%M:%S.%f') # convert string to datetime object
+            self.conn.execute('DELETE FROM Comment WHERE uid=%s AND time=%s AND isbn=%s;', (uid, datetime_object, isbn))
             session.commit()
         except:
             session.rollback()

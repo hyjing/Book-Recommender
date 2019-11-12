@@ -244,6 +244,7 @@ def getBookContent():
     if 'isbn' not in session:
         session['isbn'] = request.args.get('isbn')
     session['uid'] = 7
+    session['isbn'] = '978-0345457684'
     # debug
     # session['uid'] = session['user_id']
     bd = BookDetail(g.conn, session)
@@ -286,7 +287,8 @@ def rating():
 @app.route('/recommend', methods=["GET"])
 def recommend():
     if request.method == "GET":
-        session['uid'] = 7
+        # session['uid'] = 7
+        session['uid'] = session['user_id']
         rc = Recommend(g.conn, session)
         recommend_books = rc.generateRecommendation()
         return render_template("recommendations.html", books=recommend_books)
@@ -295,7 +297,8 @@ def recommend():
 @app.route('/myLikeBooks', methods=["GET"])
 def get_my_liked_book():
     if request.method == "GET":
-        session['uid'] = 7
+        # session['uid'] = 7
+        session['uid'] = session['user_id']
         like = LikeUnlikeBooks(engine, g.conn)
         my_like_books = like.get_likes(session['uid'])
         return render_template('mylikes.html', books=my_like_books)
