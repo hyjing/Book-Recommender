@@ -109,7 +109,7 @@ def index():
   """
 
   if session.get('user_id'):
-    return redirect("/home")
+    return render_template("/home.html")
   return render_template("index.html")
 
 @app.route('/types', methods=['GET', 'POST'])
@@ -162,9 +162,9 @@ def search():
     isbn_search = request.form["isbn_search"]
     posts = g.conn.execute(
       "SELECT B.isbn, B.title, B.date, B.outline FROM book B"
-      " WHERE B.isbn = {};".format(isbn_search)
+      " WHERE B.isbn = \'{}\';".format(isbn_search)
     ).fetchall()
-  return render_template("/search", posts=posts)
+  return render_template("/search.html", posts=posts)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():

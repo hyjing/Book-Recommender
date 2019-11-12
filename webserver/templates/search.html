@@ -23,10 +23,12 @@
         <td>{{ post['date'] }}</td>
         <td>{{ post['outline'] }}</td>
 
-        <form method="POST" action="/book">
-          <input type="hidden" name="isbn" value={{post['isbn']}} />
-          <input type="submit" value="Get">
-        </form>
+	<td>
+          <form method="POST" action="/book">
+            <input type="hidden" name="isbn" value={{post['isbn']}} />
+            <input type="submit" value="Get">
+          </form>
+	</td>
       </tr>
       {% endfor %}
     </tbody>
