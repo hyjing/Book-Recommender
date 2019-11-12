@@ -236,7 +236,6 @@ def register():
         'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',{});'
         .format(email, password, last_name, first_name, gen)
       )
-      db.commit()
       return redirect(url_for('login'))
 
     flash(error)
