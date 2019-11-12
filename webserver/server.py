@@ -172,7 +172,7 @@ def search():
         " FROM book B"
         " WHERE B.isbn IN "
         "   (SELECT BA.isbn FROM bookauthor BA, author A"
-        "      WHERE BA.wid = A.wid AND (A.last_name = {} OR A.first_name = {}));".format(bookname_search, bookauthor_search)
+        "      WHERE BA.wid = A.wid AND (A.last_name = \'{}\' OR A.first_name = \'{}\'));".format(bookauthor_search, bookauthor_search)
       ).fetchall()
   return render_template("/search.html", posts=posts)
 
@@ -224,15 +224,17 @@ def register():
     elif not password:
       error = 'Password is required.'
     elif db.execute(
-      'SELECT id FROM yc3702.user WHERE email = {};'.format(email)
+      'SELECT uid FROM yc3702.user WHERE email = \'{}\';'.format(email)
     ).fetchone() is not None:
-      error = 'User {} is already registered.'.format(email)
+      error = 'User \'{}\' is already registered.'.format(email)
 
     if error is None:
+      gen = False
+      if gender == 'male':
+        gen = True
       db.execute(
-        'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES ({},{},{},{},{});'
-        .format(email, password, last_name, first_name, gender),
-        (email, generate_password_hash(password), last_name, first_name, gender)
+        'INSERT INTO yc3702.user (email, password, last_name, first_name, gender) VALUES (\'{}\',\'{}\',\'{}\',\'{}\',{});'
+        .format(email, password, last_name, first_name, gen)
       )
       db.commit()
       return redirect(url_for('login'))

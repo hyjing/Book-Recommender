@@ -29,7 +29,7 @@
         <td>{{ post['outline'] }}</td>
 
 	<td>
-          <form method="POST" action="/book">
+          <form method="GET" action="/bookContent">
             <input type="hidden" name="isbn" value={{post['isbn']}} />
             <input type="submit" value="Get">
           </form>
