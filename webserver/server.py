@@ -255,10 +255,10 @@ def register():
 def getBookContent():
     if 'isbn' not in session:
         session['isbn'] = request.args.get('isbn')
-    session['uid'] = 7
-    session['isbn'] = '978-0345457684'
+    # session['uid'] = 7
+    # session['isbn'] = '978-0345457684'
     # debug
-    # session['uid'] = session['user_id']
+    session['uid'] = session['user_id']
     bd = BookDetail(g.conn, session)
     infos = bd.queryBookInformation()
     book_info = infos['book_info']
