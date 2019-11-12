@@ -20,7 +20,7 @@
         <td>{{ post['name'] }}</td>
         <td>{{ post['description'] }}</td>
 	<td>
-          <form method="POST" action="/book">
+          <form method="POST" action="/types">
             <input type="hidden" name="type" value={{ post['tid'] }} />
             <input type="submit" value="Get Books">
           </form>
