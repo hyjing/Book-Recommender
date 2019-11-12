@@ -111,22 +111,29 @@ def index():
     return redirect("/types")
   return render_template("index.html")
 
-@app.route('/types')
+@app.route('/types', methods=['GET'])
 def types():
   posts = g.conn.execute(
       "SELECT * FROM type T, liketype LT"
       " WHERE LT.uid = {} AND LT.tid = T.tid;".format(session['user_id'])
   ).fetchall()
 
+  allTypes = g.conn.execute(
+      "SELECT * FROM type T"
+  ).fetchall()
+
   if request.method == 'GET':
     bookType = request.args.get("type")
     session['currentType'] = bookType
-    return redirect("/book")
+    # return redirect("/book")
 
-  return render_template("types.html", posts=posts)
+  return render_template("types.html", posts=posts, allTypes=allTypes)
 
 @app.route('/book')
 def book():
+  if session.get('currentType') == None:
+    return redirect("/types")
+
   currentType = session['currentType']
   posts = g.conn.execute(
       "SELECT * FROM book B, booktype BT"
@@ -302,7 +309,6 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.debug = True
-    #app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
-    app.run()
+    app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
+    # app.run()
   run()

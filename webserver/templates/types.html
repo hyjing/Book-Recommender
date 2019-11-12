@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+  <p>Your Liked Types</p>
   <table>
     <thead>
       <th>type</th>
@@ -18,11 +19,34 @@
       <tr>
         <td>{{ post['name'] }}</td>
         <td>{{ post['description'] }}</td>
+	<td>
+          <form method="GET" action="/book">
+            <input type="hidden" name="type" value={{post['tid']}} />
+            <input type="submit" value="Get">
+          </form>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-        <form method="GET" action="/types">
-          <input type="hidden" name="type" value={{post['tid']}} />
-          <input type="submit" value="Get">
-        </form>
+  <p>All Types</p>
+  <table>
+    <thead>
+      <th>type</th>
+      <th>description</th>
+    </thead>
+    <tbody>
+      {% for allType in allTypes %}
+      <tr>
+        <td>{{ allType['name'] }}</td>
+        <td>{{ allType['description'] }}</td>
+        <td>
+          <form method="GET" action="/types">
+            <input type="hidden" name="type" value={{allType['tid']}} />
+            <input type="submit" value="Get">
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
