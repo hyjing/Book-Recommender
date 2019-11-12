@@ -20,9 +20,9 @@
         <td>{{ post['name'] }}</td>
         <td>{{ post['description'] }}</td>
 	<td>
-          <form method="GET" action="/book">
-            <input type="hidden" name="type" value={{post['tid']}} />
-            <input type="submit" value="Get">
+          <form method="POST" action="/book">
+            <input type="hidden" name="type" value={{ post['tid'] }} />
+            <input type="submit" value="Get Books">
           </form>
 	</td>
       </tr>
@@ -42,9 +42,9 @@
         <td>{{ allType['name'] }}</td>
         <td>{{ allType['description'] }}</td>
         <td>
-          <form method="GET" action="/types">
+          <form method="POST" action="/types">
             <input type="hidden" name="type" value={{allType['tid']}} />
-            <input type="submit" value="Get">
+            <input type="submit" value="Get Books">
           </form>
         </td>
       </tr>

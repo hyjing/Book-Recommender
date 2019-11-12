@@ -107,11 +107,11 @@ def index():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  if session.get('uid'):
+  if session.get('user_id'):
     return redirect("/types")
   return render_template("index.html")
 
-@app.route('/types', methods=['GET'])
+@app.route('/types', methods=['GET', 'POST'])
 def types():
   posts = g.conn.execute(
       "SELECT * FROM type T, liketype LT"
@@ -122,28 +122,28 @@ def types():
       "SELECT * FROM type T"
   ).fetchall()
 
-  if request.method == 'GET':
-    bookType = request.args.get("type")
-    session['currentType'] = bookType
-    # return redirect("/book")
+  if request.method == 'POST':
+    session['tid'] = request.form["type"]
+    return redirect("/book")
 
   return render_template("types.html", posts=posts, allTypes=allTypes)
 
-@app.route('/book')
+@app.route('/book', methods=['GET', 'POST'])
 def book():
-  if session.get('currentType') == None:
+  if session.get('tid') == None:
     return redirect("/types")
-
-  currentType = session['currentType']
+  
+  tid = session['tid'].encode("utf-8")
+  print("tid is: ", tid)
   posts = g.conn.execute(
-      "SELECT * FROM book B, booktype BT"
-      " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(currentType)
+      "SELECT B.isbn, B.title, B.date, B.outline FROM book B, booktype BT"
+      " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(tid)
   ).fetchall()
 
-  if request.method == 'GET':
-    session['isbn'] = request.args.get("isbn")
+  if request.method == 'POST':
+    session['isbn'] = request.form["isbn"]
     return redirect("/bookContent")
-  return render_template("book.html", post=posts)
+  return render_template("book.html", posts=posts)
 
 @app.route('/likebook', methods=['POST'])
 def likebook():

@@ -2,9 +2,6 @@
 
 {% block header %}
   <h1>{% block title %}Books{% endblock %}</h1>
-  <!-- {% if g.user %}
-    <a class="action" href="{{ url_for('blog.create') }}">New</a>
-  {% endif %} -->
 {% endblock %}
 
 {% block content %}
@@ -21,7 +18,7 @@
         <td>{{ post['date'] }}</td>
         <td>{{ post['outline'] }}</td>
 
-        <form method="GET" action="/book">
+        <form method="POST" action="/book">
           <input type="hidden" name="isbn" value={{post['isbn']}} />
           <input type="submit" value="Get">
         </form>
