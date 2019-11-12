@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
 from BookContent import BookDetail
 from RatingComment import UpdateRatingComment
+from Recommendation import Recommend
 
 import json
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -226,7 +227,11 @@ def register():
 
 @app.route('/bookContent', methods=['GET'])
 def getBookContent():
-    session['uid'] = session['user_id']
+    if 'isbn' not in session:
+        session['isbn'] = request.args.get('isbn')
+    session['uid'] = 7
+    # debug
+    # session['uid'] = session['user_id']
     bd = BookDetail(g.conn, session)
     infos = bd.queryBookInformation()
     book_info = infos['book_info']
@@ -264,6 +269,13 @@ def rating():
     return redirect('/bookContent')
 
 
+@app.route('/recommend', methods=["GET"])
+def recommend():
+    if request.method == "GET":
+        session['uid'] = 7
+        rc = Recommend(g.conn, session)
+        recommend_books = rc.generateRecommendation()
+        return render_template("recommendations.html", books=recommend_books)
 
 if __name__ == "__main__":
   import click

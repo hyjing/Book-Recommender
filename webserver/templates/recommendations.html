@@ -1,0 +1,29 @@
+<html>
+  <style>
+    body{ 
+      font-size: 15pt;
+      font-family: arial;
+    }
+  </style>
+
+
+<body>
+  <h1>Recommendations for you!</h1>
+  
+    <dl>
+    {% for val in books %}
+        <dt>{{ val['title']|e }}</dt>
+        <dd>{{ val['date']|e }}</dd>
+        <dd>{{ val['outline']|e }}</dd>
+        <form method="GET" action="/bookContent">
+          <input type="hidden" name="isbn" value={{val['isbn']}} />
+          <input type="submit" value="Know more">
+        </form>
+    {% endfor %}
+    </dl>
+  
+</body>
+
+
+</html>
+
