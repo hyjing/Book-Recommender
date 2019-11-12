@@ -185,7 +185,7 @@ def login():
         session.clear()
         session['user_id'] = user['uid']
         # session['user_name'] = user['last_name'] + ' ' + user['first_name']
-        return redirect('/home')
+        return render_template('/home.html')
 
     flash(error)
 
@@ -341,6 +341,6 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    # app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
+    app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
     app.run()
   run()
