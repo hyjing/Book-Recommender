@@ -18,6 +18,7 @@ from datetime import datetime
 from BookContent import BookDetail
 from RatingComment import UpdateRatingComment
 from Recommendation import Recommend
+from LikeUnlikeBook import LikeUnlikeBooks
 
 import json
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -284,6 +285,31 @@ def recommend():
         recommend_books = rc.generateRecommendation()
         return render_template("recommendations.html", books=recommend_books)
 
+
+@app.route('/myLikeBooks', methods=["GET"])
+def get_my_liked_book():
+    if request.method == "GET":
+        session['uid'] = 7
+        like = LikeUnlikeBooks(engine, g.conn)
+        my_like_books = like.get_likes(session['uid'])
+        return render_template('mylikes.html', books=my_like_books)
+
+
+@app.route('/addlikedbook', methods=['POST'])
+def addLikeBook():
+    if request.method == "POST":
+        like = LikeUnlikeBooks(engine, g.conn)
+        like.addLike(session['isbn'], session['uid'])
+    return redirect('/bookContent')
+
+
+@app.route('/unlikebook', methods=['POST'])
+def unlikeBook():
+    if request.method == "POST":
+        unlike = LikeUnlikeBooks(engine, g.conn)
+        unlike.unLike(session['isbn'], session['uid'])
+    return redirect('/bookContent')
+
 if __name__ == "__main__":
   import click
 
@@ -309,6 +335,6 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
-    # app.run()
+    # app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
+    app.run()
   run()

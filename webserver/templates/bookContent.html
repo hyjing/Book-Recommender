@@ -9,6 +9,7 @@
 
 <body>
   <h1>Bookinfo</h1>
+
   <dl>
   {% for key, value in Bookinfo.items() %}
       <dt>{{ key|e }}</dt>
@@ -30,6 +31,18 @@
     <input type="submit" value="Rate">
   </p>
 </form>
+
+  <form method="POST" action="/addlikedbook">
+    <p> 
+      <input type="submit" value="Like this book">
+    </p>
+  </form>
+
+  <form method="POST" action="/unlikebook">
+    <p> 
+      <input type="submit" value="Unlike this book">
+    </p>
+  </form>
 
   <h2> Comments</h2>
   <h3> Your Comments</h3>
