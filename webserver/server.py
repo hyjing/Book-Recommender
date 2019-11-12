@@ -108,11 +108,11 @@ def index():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  if session.get('uid'):
-    return redirect("/types")
+  if session.get('user_id'):
+    return redirect("/home")
   return render_template("index.html")
 
-@app.route('/types', methods=['GET'])
+@app.route('/types', methods=['GET', 'POST'])
 def types():
   posts = g.conn.execute(
       "SELECT * FROM type T, liketype LT"
@@ -121,44 +121,50 @@ def types():
 
   allTypes = g.conn.execute(
       "SELECT * FROM type T"
+      " WHERE T.tid NOT IN (SELECT T2.tid FROM type T2, liketype LT WHERE LT.uid = {} AND LT.tid = T2.tid);".format(session['user_id'])
   ).fetchall()
 
-  if request.method == 'GET':
-    bookType = request.args.get("type")
-    session['currentType'] = bookType
-    # return redirect("/book")
-
+  if request.method == 'POST':
+    if 'type' in request.form:
+      session['tid'] = request.form["type"]
+      return redirect("/book")
+    elif 'like_tid' in request.form:
+      g.conn.execute(
+        'INSERT INTO liketype(tid, uid) VALUES ({}, {});'.format(request.form["like_tid"], session['user_id'])
+      )
+      return redirect("/types")
+    elif 'dislike_tid' in request.form:
+        g.conn.execute(
+          'DELETE FROM liketype WHERE tid = {} AND uid = {};'.format(request.form["dislike_tid"], session['user_id']))
+        return redirect("/types")
   return render_template("types.html", posts=posts, allTypes=allTypes)
 
-@app.route('/book')
+@app.route('/book', methods=['GET', 'POST'])
 def book():
-  if session.get('currentType') == None:
+  if session.get('tid') == None:
     return redirect("/types")
-
-  currentType = session['currentType']
+  
+  tid = session['tid'].encode("utf-8")
   posts = g.conn.execute(
-      "SELECT * FROM book B, booktype BT"
-      " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(currentType)
+      "SELECT B.isbn, B.title, B.date, B.outline FROM book B, booktype BT"
+      " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(tid)
   ).fetchall()
 
-  if request.method == 'GET':
-    session['isbn'] = request.args.get("isbn")
+  if request.method == 'POST':
+    session['isbn'] = request.form["isbn"]
     return redirect("/bookContent")
-  return render_template("book.html", post=posts)
+  return render_template("book.html", posts=posts)
 
-@app.route('/likebook', methods=['POST'])
-def likebook():
-  isbn = request.form['isbn']
-  uid = request.form['uid']
-  g.conn.execute('INSERT INTO likebook(isbn, uid) VALUES (%s, %d);', isbn, uid)
-  return redirect("/book")
-
-@app.route('/liketype', methods=['POST'])
-def liketype():
-  tid = request.form['tid']
-  uid = request.form['uid']
-  g.conn.execute('INSERT INTO likebook(tid, uid) VALUES (%d, %d);', tid, uid)
-  return redirect("/book")
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+  posts = []
+  if request.method == 'POST':
+    isbn_search = request.form["isbn_search"]
+    posts = g.conn.execute(
+      "SELECT B.isbn, B.title, B.date, B.outline FROM book B"
+      " WHERE B.isbn = {};".format(isbn_search)
+    ).fetchall()
+  return render_template("/search", posts=posts)
 
 @app.route('/login', methods=('GET', 'POST'))
 def login():
@@ -179,7 +185,7 @@ def login():
         session.clear()
         session['user_id'] = user['uid']
         # session['user_name'] = user['last_name'] + ' ' + user['first_name']
-        return redirect('/types')
+        return redirect('/home')
 
     flash(error)
 

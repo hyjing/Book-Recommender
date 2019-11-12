@@ -20,11 +20,17 @@
         <td>{{ post['name'] }}</td>
         <td>{{ post['description'] }}</td>
 	<td>
-          <form method="GET" action="/book">
-            <input type="hidden" name="type" value={{post['tid']}} />
-            <input type="submit" value="Get">
+          <form method="POST" action="/book">
+            <input type="hidden" name="type" value={{ post['tid'] }} />
+            <input type="submit" value="Get Books">
           </form>
 	</td>
+	<td>
+          <form method="POST" action="/types">
+            <input type="hidden" name="dislike_tid" value={{ post['tid'] }} />
+            <input type="submit" value="Dislike this type">
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -42,9 +48,15 @@
         <td>{{ allType['name'] }}</td>
         <td>{{ allType['description'] }}</td>
         <td>
-          <form method="GET" action="/types">
+          <form method="POST" action="/types">
             <input type="hidden" name="type" value={{allType['tid']}} />
-            <input type="submit" value="Get">
+            <input type="submit" value="Get Books">
+          </form>
+        </td>
+	<td>
+          <form method="POST" action="/types">
+            <input type="hidden" name="like_tid" value={{ allType['tid'] }} />
+            <input type="submit" value="Like this type">
           </form>
         </td>
       </tr>
