@@ -159,11 +159,21 @@ def book():
 def search():
   posts = []
   if request.method == 'POST':
-    isbn_search = request.form["isbn_search"]
-    posts = g.conn.execute(
-      "SELECT B.isbn, B.title, B.date, B.outline FROM book B"
-      " WHERE B.isbn = \'{}\';".format(isbn_search)
-    ).fetchall()
+    if 'bookname_search' in request.form:
+      bookname_search = request.form["bookname_search"]
+      posts = g.conn.execute(
+        "SELECT B.isbn, B.title, B.date, B.outline FROM book B"
+        " WHERE B.title = \'{}\';".format(bookname_search)
+      ).fetchall()
+    elif 'bookauthor_search' in request.form:
+      bookauthor_search = request.form["bookauthor_search"]
+      posts = g.conn.execute(
+        "SELECT B.isbn, B.title, B.date, B.outline"
+        " FROM book B"
+        " WHERE B.isbn IN "
+        "   (SELECT BA.isbn FROM bookauthor BA, author A"
+        "      WHERE BA.wid = A.wid AND (A.last_name = {} OR A.first_name = {}));".format(bookname_search, bookauthor_search)
+      ).fetchall()
   return render_template("/search.html", posts=posts)
 
 @app.route('/login', methods=('GET', 'POST'))
@@ -214,7 +224,7 @@ def register():
     elif not password:
       error = 'Password is required.'
     elif db.execute(
-      'SELECT id FROM yc3702.user WHERE email = $1;', (email,)
+      'SELECT id FROM yc3702.user WHERE email = {};'.format(email)
     ).fetchone() is not None:
       error = 'User {} is already registered.'.format(email)
 

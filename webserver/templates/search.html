@@ -6,8 +6,13 @@
 
 {% block content %}
   <form method="post">
-    <label for="isbn_search">isbn</label>
-    <input name="isbn_search" id="isbn_search" required>
+    <label for="bookname_search">Book Name: </label>
+    <input name="bookname_search" id="bookname_search" required>
+    <input type="submit" value="Search">
+  </form>
+  <form method="post">
+    <label for="bookauthor_search">Author Name: </label>
+    <input name="bookauthor_search" id="bookauthor_search" required>
     <input type="submit" value="Search">
   </form>
   <table>
