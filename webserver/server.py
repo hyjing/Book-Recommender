@@ -98,19 +98,16 @@ def teardown_request(exception):
 #
 @app.route('/')
 def index():
-  """
-  request is a special object that Flask provides to access web request information:
-
-  request.method:   "GET" or "POST"
-  request.form:     if the browser submitted a form, this contains the data in the form
-  request.args:     dictionary of URL arguments, e.g., {a:1, b:2} for http://localhost?a=1&b=2
-
-  See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
-  """
-
   if session.get('user_id'):
     return render_template("/home.html")
   return render_template("index.html")
+
+@app.route('/delete', methods=['GET', 'POST'])
+def deleteUser():
+  g.conn.execute(
+    'DELETE FROM yc3702.user WHERE uid = {};'.format(session['user_id'])
+  )
+  return redirect("/")
 
 @app.route('/types', methods=['GET', 'POST'])
 def types():
