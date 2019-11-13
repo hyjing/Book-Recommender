@@ -142,7 +142,7 @@ def book():
   if session.get('tid') == None:
     return redirect("/types")
   
-  tid = session['tid'].encode("utf-8")
+  tid = int(session['tid'].encode("utf-8"))
   posts = g.conn.execute(
       "SELECT B.isbn, B.title, B.date, B.outline FROM book B, booktype BT" + 
       " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(tid)
@@ -353,8 +353,8 @@ if __name__ == "__main__":
 
     HOST, PORT = host, port
     print("running on %s:%d" % (HOST, PORT))
-    # app.degug = True
-    # app.run()
-    app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
+    app.degug = True
+    app.run()
+    # app.run(host=HOST, port=PORT, debug=False, threaded=threaded)
 
   run()
