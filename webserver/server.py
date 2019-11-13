@@ -107,7 +107,8 @@ def deleteUser():
   g.conn.execute(
     'DELETE FROM yc3702.user WHERE uid = {};'.format(session['user_id'])
   )
-  return redirect("/")
+  session.clear()
+  return render_template("index.html")
 
 @app.route('/types', methods=['GET', 'POST'])
 def types():
