@@ -146,7 +146,7 @@ def book():
   
   tid = session['tid'].encode("utf-8")
   posts = g.conn.execute(
-      "SELECT B.isbn, B.title, B.date, B.outline FROM book B, booktype BT"
+      "SELECT B.isbn, B.title, B.date, B.outline FROM book B, booktype BT" + 
       " WHERE BT.tid = {} AND B.isbn = BT.isbn;".format(tid)
   ).fetchall()
 
